@@ -1,0 +1,17 @@
+{
+  "id": "zen-about-favicons",
+  "name": "Zen About Favicons",
+  "description": "Custom favicons for about:* pages",
+  "author": "Impre",
+  "version": "1.0.0",
+  "js": true,
+  "scripts": {
+    "about-favicons.uc.js": {
+      "name": "About Favicons",
+      "description": "Custom favicons for about:config, about:preferences, etc.",
+      "include": ["chrome://browser/content/browser.xhtml"]
+    }
+  },
+  "tags": ["Javascript"],
+  "fork": ["zen"]
+}
