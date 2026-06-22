@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name           About Favicons
-// @version        4.0.0
+// @version        4.1.0
 // @description    Custom favicons for about:* pages — reads PNG from disk, writes to favicons.sqlite
 // @author         Impre
 // @include        main
@@ -16,6 +16,7 @@
         'about:addons': 'addons.png',
         'about:support': 'support.png',
         'about:debugging': 'debugging.png',
+        'about:newtab': 'newtab.png',
     };
 
     // Path to the icons folder (relative to the profile)
@@ -156,7 +157,7 @@
         gBrowser.tabContainer.addEventListener('TabOpen', (e) => setTimeout(() => applyFaviconToTab(e.target), 200));
         applyToAllTabs();
 
-        console.log('[AboutFavicons] v4.0 initialized (PNG from disk + SQLite direct-write)');
+        console.log('[AboutFavicons] v4.1 initialized (PNG from disk + SQLite direct-write)');
     }
 
     if (document.readyState === 'complete' || document.readyState === 'interactive') init();
