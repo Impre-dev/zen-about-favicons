@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name           About Favicons
-// @version        4.1.0
+// @version        4.2.0
 // @description    Custom favicons for about:* pages — reads PNG from disk, writes to favicons.sqlite
 // @author         Impre
 // @include        main
@@ -21,7 +21,30 @@
 
     // Path to the icons folder (relative to the profile)
     const MOD_ID = 'zen-about-favicons';
-    const ICONS_DIR = PathUtils.join(PathUtils.profileDir, 'chrome', 'sine-mods', MOD_ID, 'icons');
+
+    /**
+     * Detect dark theme once at startup.
+     * Uses prefers-color-scheme (same mechanism as @media in userChrome.css),
+     * with a computed-background luminance fallback for robustness.
+     */
+    function isDarkMode() {
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            return true;
+        }
+        // Fallback: check root element background luminance
+        const bg = window.getComputedStyle(document.documentElement).getPropertyValue('background-color');
+        const m = bg.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+        if (m) {
+            const r = parseInt(m[1]), g = parseInt(m[2]), b = parseInt(m[3]);
+            return (0.299 * r + 0.587 * g + 0.114 * b) / 255 < 0.5;
+        }
+        return false;
+    }
+
+    // icons/light/ = white icons (used in dark theme)
+    // icons/dark/  = black icons (used in light theme)
+    const ICONS_SUBDIR = isDarkMode() ? 'light' : 'dark';
+    const ICONS_DIR = PathUtils.join(PathUtils.profileDir, 'chrome', 'sine-mods', MOD_ID, 'icons', ICONS_SUBDIR);
 
     // Expiration = 1 year from now (in microseconds)
     const EXPIRATION = (Date.now() + 365 * 24 * 60 * 60 * 1000) * 1000;
@@ -157,7 +180,7 @@
         gBrowser.tabContainer.addEventListener('TabOpen', (e) => setTimeout(() => applyFaviconToTab(e.target), 200));
         applyToAllTabs();
 
-        console.log('[AboutFavicons] v4.1 initialized (PNG from disk + SQLite direct-write)');
+        console.log('[AboutFavicons] v4.2 initialized — theme: ' + (isDarkMode() ? 'dark' : 'light') + ', icons: ' + ICONS_SUBDIR + '/');
     }
 
     if (document.readyState === 'complete' || document.readyState === 'interactive') init();
