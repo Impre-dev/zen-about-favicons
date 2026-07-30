@@ -18,6 +18,7 @@
         'about:debugging': 'debugging.png',
         'about:newtab': 'newtab.png',
         'about:processes': 'processes.png',
+        'about:profiles': 'profiles.png',
     };
 
     // Path to the icons folder (relative to the profile)
