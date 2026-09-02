@@ -3,7 +3,7 @@
   "name": "Zen About Favicons",
   "description": "Custom favicons for about:* pages",
   "author": "Impre",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "js": true,
   "scripts": {
     "about-favicons.uc.js": {

@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name           About Favicons
-// @version        4.2.0
+// @version        4.3.0
 // @description    Custom favicons for about:* pages — reads PNG from disk, writes to favicons.sqlite
 // @author         Impre
 // @include        main
@@ -26,21 +26,21 @@
 
     /**
      * Detect dark theme once at startup.
-     * Uses prefers-color-scheme (same mechanism as @media in userChrome.css),
-     * with a computed-background luminance fallback for robustness.
+     * Source de vérité : la pref Zen `zen.view.window.scheme` (0=dark, 1=light,
+     * 2=suit l'OS) — indépendante de la peinture de la fenêtre.
+     * ⚠️ Ne PAS revenir à prefers-color-scheme / luminance du fond de fenêtre :
+     * avec la fenêtre transparente/Mica (browser.tabs.allow_transparent_browser
+     * + widget.windows.mica), le fond est rgba(0,0,0,0) et la media query ne
+     * suit plus le thème Zen → icônes noires en thème dark (bug 2026-09-02).
+     * Mode 2 (auto) : suit l'OS → prefers-color-scheme est le bon signal là.
      */
     function isDarkMode() {
-        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            return true;
-        }
-        // Fallback: check root element background luminance
-        const bg = window.getComputedStyle(document.documentElement).getPropertyValue('background-color');
-        const m = bg.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
-        if (m) {
-            const r = parseInt(m[1]), g = parseInt(m[2]), b = parseInt(m[3]);
-            return (0.299 * r + 0.587 * g + 0.114 * b) / 255 < 0.5;
-        }
-        return false;
+        try {
+            const scheme = Services.prefs.getIntPref('zen.view.window.scheme', 2);
+            if (scheme === 0) return true;
+            if (scheme === 1) return false;
+        } catch (e) { /* pref absente → fallback */ }
+        return !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
     }
 
     // icons/light/ = white icons (used in dark theme)
@@ -182,7 +182,7 @@
         gBrowser.tabContainer.addEventListener('TabOpen', (e) => setTimeout(() => applyFaviconToTab(e.target), 200));
         applyToAllTabs();
 
-        console.log('[AboutFavicons] v4.2 initialized — theme: ' + (isDarkMode() ? 'dark' : 'light') + ', icons: ' + ICONS_SUBDIR + '/');
+        console.log('[AboutFavicons] v4.3 initialized — theme: ' + (isDarkMode() ? 'dark' : 'light') + ', icons: ' + ICONS_SUBDIR + '/');
     }
 
     if (document.readyState === 'complete' || document.readyState === 'interactive') init();
